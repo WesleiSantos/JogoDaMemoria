@@ -13,6 +13,7 @@ JogoDaMemoria::~JogoDaMemoria() {}
 
 // Initialize OpenGL
 void JogoDaMemoria::initializeGL() {
+    qglClearColor(Qt::white);
 }
 
 // This is called when the OpenGL window is resized
@@ -33,37 +34,116 @@ void JogoDaMemoria::paintGL() {
     glLoadIdentity(); // Reset current modelview matrix
     for (int i = 0; i<8; i++) {
         if( i < 4 ){
-            DesenhaCarta(i == 5, -0.5+ 0.25*(i%4),0.5);
+            DesenhaCarta(i == 5, -0.7+ 0.35*(i%4), 0.7, i%4+1);
         }
         else {
-            DesenhaCarta(i == 5, -0.5 + 0.25*(i%4) , 0 );
+            DesenhaCarta(i == 5, -0.7 + 0.35*(i%4) , 0, i%4+1);
         }
     }
 }
 
-void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init){
+void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, int figura){
 
-    glColor3f(1.0f, 0, 0);//trocando cor para vermelho
+    glColor3f(0.7, 0.7, 0.7);//trocando cor para vermelho
     glBegin(GL_QUADS);
         glVertex2f(x_init, y_init);
-        glVertex2f(0.23 + x_init, y_init);
-        glVertex2f( 0.23 + x_init, -0.46 + y_init);
-        glVertex2f(x_init, -0.46 + y_init);
+        glVertex2f(x_carta + x_init, y_init);
+        glVertex2f(x_carta + x_init, y_carta + y_init);
+        glVertex2f(x_init, y_carta + y_init);
     glEnd();
 
-    //depois colocar codigo do desenho aqui a partir de uma variavel pra dizer o que pintar
+    if (figura == 1){
+        DesenhaCubo(x_init, y_init);
+    }
+    else if (figura == 2){
+        DesenhaTriangulo(x_init, y_init);
+    }
+    else if (figura == 3){
+        DesenhaIgual(x_init, y_init);
+    }
+    else if (figura == 4) {
+        DesenhaLosangulo(x_init, y_init);
+    }
+
     if (selecionado){
         glColor3f(1.0f, 1.0f, 0);//trocando cor para amarelo
     }
     else {
-        glColor3f(1.0f, 1.0f, 1.0f);//trocando cor para branco
+        glColor3f(0.0f, 0.0f, 0.0f);//trocando cor para branco
     }
+
     glLineWidth(5.0f);
     glBegin(GL_LINE_LOOP);//desenhando a borda da carta
         glVertex2f(x_init, y_init);
-        glVertex2f(0.23 + x_init, y_init);
-        glVertex2f( 0.23 + x_init, -0.46 + y_init);
-        glVertex2f(x_init, -0.46 + y_init);
+        glVertex2f(x_carta + x_init, y_init);
+        glVertex2f(x_carta + x_init, y_carta + y_init);
+        glVertex2f(x_init, y_carta + y_init);
+    glEnd();
+}
+
+void JogoDaMemoria::DesenhaCubo(float x_init, float y_init){
+    //pontos da area onde o desenho sera gerado
+    x_init = x_init + x_carta/5;
+    y_init = y_init + y_carta/4;
+    float x_end = x_init + 3*x_carta/5;
+    float y_end = y_init + 2*y_carta/4;
+
+    glColor3f(1, 0, 0);//trocando cor para vermelho
+    glBegin(GL_QUADS);
+        glVertex2f(x_init, y_init);
+        glVertex2f(x_end, y_init);
+        glVertex2f(x_end, y_end);
+        glVertex2f(x_init, y_end);
+    glEnd();
+}
+
+void JogoDaMemoria::DesenhaTriangulo(float x_init, float y_init){
+    //pontos da area onde o desenho sera gerado
+    x_init = x_init + x_carta/5;
+    y_init = y_init + y_carta/4;
+    float x_end = x_init + 3*x_carta/5;
+    float y_end = y_init + 2*y_carta/4;
+
+    glColor3f(0, 0, 1);//trocando cor para azul
+    glBegin(GL_POLYGON);
+        glVertex2f(x_end/2+x_init/2, y_init);
+        glVertex2f(x_end, y_end);
+        glVertex2f(x_init, y_end);
+    glEnd();
+}
+void JogoDaMemoria::DesenhaIgual(float x_init, float y_init){
+    //pontos da area onde o desenho sera gerado
+    x_init = x_init + x_carta/5;
+    y_init = y_init + y_carta/4;
+    float x_end = x_init + 3*x_carta/5;
+    float y_end = y_init + 2*y_carta/4;
+
+    glColor3f(0, 1, 0.3);//trocando cor para azul
+    glBegin(GL_QUADS);
+        glVertex2f(x_init, y_init);
+        glVertex2f(x_end, y_init);
+        glVertex2f(x_end, y_init + 1.5*y_carta/8);
+        glVertex2f(x_init, y_init + 1.5*y_carta/8);
+
+        glVertex2f(x_init, y_init + 2.5*y_carta/8);
+        glVertex2f(x_end, y_init + 2.5*y_carta/8);
+        glVertex2f(x_end, y_end);
+        glVertex2f(x_init, y_end);
+    glEnd();
+}
+void JogoDaMemoria::DesenhaLosangulo(float x_init, float y_init){
+    //pontos da area onde o desenho sera gerado
+    x_init = x_init + x_carta/5;
+    y_init = y_init + y_carta/4;
+    float x_end = x_init + 3*x_carta/5;
+    float y_end = y_init + 2*y_carta/4;
+
+    glColor3f(0.6, 0, 0.8);//trocando cor para azul
+    glBegin(GL_QUADS);
+    glVertex2f(x_init, (y_init + y_end)/2);
+    glVertex2f((x_init + x_end)/2, y_init);
+    glVertex2f(x_end, (y_init + y_end)/2);
+    glVertex2f((x_init + x_end)/2, y_end);
     glEnd();
 }
 
