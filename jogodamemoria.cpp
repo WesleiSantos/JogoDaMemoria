@@ -13,14 +13,6 @@ JogoDaMemoria::~JogoDaMemoria() {}
 
 // Initialize OpenGL
 void JogoDaMemoria::initializeGL() {
-    glShadeModel(GL_SMOOTH); // Enable smooth shading
-    glClearColor(0.0f,0.0f,0.0f,0.0f); // Set the clear color to a black background
-
-    glClearDepth(1.0f); // Depth buffer setup
-    glEnable(GL_DEPTH_TEST); // Enable depth testing
-    glDepthFunc(GL_LEQUAL); // Set type of depth test
-
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // Really nice perspective calculations
 }
 
 // This is called when the OpenGL window is resized
@@ -30,12 +22,6 @@ void JogoDaMemoria::resizeGL(int width, int height) {
         height = 1;
 
     glViewport(0, 0, width, height); // Reset current viewport
-
-    glMatrixMode(GL_PROJECTION); // Select projection matrix
-    glLoadIdentity(); // Reset projection matrix
-
-    gluPerspective(45.0f, static_cast<GLfloat>(width)/height, 0.1f, 100.0f); // Calculate aspect ratio
-
     glMatrixMode(GL_MODELVIEW); // Select modelview matrix
     glLoadIdentity(); // Reset modelview matrix
 }
@@ -43,7 +29,42 @@ void JogoDaMemoria::resizeGL(int width, int height) {
 // OpenGL painting code goes here
 void JogoDaMemoria::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear screen and depth buffer
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // Reset current modelview matrix
+    for (int i = 0; i<8; i++) {
+        if( i < 4 ){
+            DesenhaCarta(i == 5, -0.5+ 0.25*(i%4),0.5);
+        }
+        else {
+            DesenhaCarta(i == 5, -0.5 + 0.25*(i%4) , 0 );
+        }
+    }
+}
+
+void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init){
+
+    glColor3f(1.0f, 0, 0);//trocando cor para vermelho
+    glBegin(GL_QUADS);
+        glVertex2f(x_init, y_init);
+        glVertex2f(0.23 + x_init, y_init);
+        glVertex2f( 0.23 + x_init, -0.46 + y_init);
+        glVertex2f(x_init, -0.46 + y_init);
+    glEnd();
+
+    //depois colocar codigo do desenho aqui a partir de uma variavel pra dizer o que pintar
+    if (selecionado){
+        glColor3f(1.0f, 1.0f, 0);//trocando cor para amarelo
+    }
+    else {
+        glColor3f(1.0f, 1.0f, 1.0f);//trocando cor para branco
+    }
+    glLineWidth(5.0f);
+    glBegin(GL_LINE_LOOP);//desenhando a borda da carta
+        glVertex2f(x_init, y_init);
+        glVertex2f(0.23 + x_init, y_init);
+        glVertex2f( 0.23 + x_init, -0.46 + y_init);
+        glVertex2f(x_init, -0.46 + y_init);
+    glEnd();
 }
 
 // Key handler
@@ -66,6 +87,9 @@ void JogoDaMemoria::changeEvent(QEvent *event) {
         // Hide cursor if the window is fullscreen, otherwise show it
         if (windowState() == Qt::WindowFullScreen)
             setCursor(Qt::BlankCursor);
+        else if(windowState() == Qt::WindowMaximized) {
+            update();
+        }
         else
             unsetCursor();
         break;

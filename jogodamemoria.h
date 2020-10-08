@@ -17,7 +17,7 @@ protected:
     void paintGL();
     void keyPressEvent(QKeyEvent *event);
     void changeEvent(QEvent *event);
-
+    void DesenhaCarta(bool selecionado, float x_init, float y_init);
 };
 #endif // JOGODAMEMORIA_H
 
