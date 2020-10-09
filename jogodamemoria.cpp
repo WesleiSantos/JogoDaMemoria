@@ -3,6 +3,8 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+GLint cartaSelecionada = 6;
+
 // Constructor
 JogoDaMemoria::JogoDaMemoria() {
     setWindowTitle("jogo da memória");
@@ -14,6 +16,7 @@ JogoDaMemoria::~JogoDaMemoria() {}
 // Initialize OpenGL
 void JogoDaMemoria::initializeGL() {
     qglClearColor(Qt::white);
+
 }
 
 // This is called when the OpenGL window is resized
@@ -32,12 +35,13 @@ void JogoDaMemoria::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear screen and depth buffer
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // Reset current modelview matrix
+
     for (int i = 0; i<8; i++) {
         if( i < 4 ){
-            DesenhaCarta(i == 5, -0.7+ 0.35*(i%4), 0.7, i%4+1);
+            DesenhaCarta(i == cartaSelecionada, -0.7+ 0.35*(i%4), 0.7, i%4+1);
         }
         else {
-            DesenhaCarta(i == 5, -0.7 + 0.35*(i%4) , 0, i%4+1);
+            DesenhaCarta(i == cartaSelecionada, -0.7 + 0.35*(i%4) , 0, i%4+1);
         }
     }
 }
@@ -161,6 +165,18 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
     }
 }
 
+void JogoDaMemoria::mousePressEvent(QMouseEvent *event){
+    if(event->button() == Qt::LeftButton){
+        cartaSelecionada < 8 ? ++cartaSelecionada: cartaSelecionada=0;
+        QPoint point = event->pos();
+        setWindowTitle("X="+QString::number(point.x())+" "+"Y="+ QString::number(point.y()));
+    }else if(event->button() == Qt::MidButton ){
+        cartaSelecionada < 8 ? ++cartaSelecionada: cartaSelecionada=0;
+    }else{
+        setWindowTitle("Não");
+    }
+    updateGL();
+}
 void JogoDaMemoria::changeEvent(QEvent *event) {
     switch (event->type()) {
     case QEvent::WindowStateChange:

@@ -19,11 +19,13 @@ protected:
     void paintGL();
     void keyPressEvent(QKeyEvent *event);
     void changeEvent(QEvent *event);
+    void mousePressEvent(QMouseEvent *event);
     void DesenhaCarta(bool selecionado, float x_init, float y_init, int figura);
     void DesenhaCubo(float x_init, float y_init);
     void DesenhaTriangulo(float x_init, float y_init);
     void DesenhaIgual(float x_init, float y_init);
     void DesenhaLosangulo(float x_init, float y_init);
+    void areaDesenho(int x_init,int  y_init);
 };
 #endif // JOGODAMEMORIA_H
 
