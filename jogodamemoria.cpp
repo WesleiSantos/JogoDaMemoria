@@ -5,6 +5,7 @@
 
 GLint cartaSelecionada = 6;
 
+
 // Constructor
 JogoDaMemoria::JogoDaMemoria() {
     setWindowTitle("jogo da memória");
@@ -16,7 +17,6 @@ JogoDaMemoria::~JogoDaMemoria() {}
 // Initialize OpenGL
 void JogoDaMemoria::initializeGL() {
     qglClearColor(Qt::white);
-
 }
 
 // This is called when the OpenGL window is resized
@@ -24,10 +24,17 @@ void JogoDaMemoria::resizeGL(int width, int height) {
     // Prevent divide by zero (in the gluPerspective call)
     if (height == 0)
         height = 1;
-
+    view_w=width;
+    view_h=height;
     glViewport(0, 0, width, height); // Reset current viewport
-    glMatrixMode(GL_MODELVIEW); // Select modelview matrix
     glLoadIdentity(); // Reset modelview matrix
+    if (width <= height)
+       glOrtho (0.0f, 250.0f, 0.0f, 250.0f*height/width, 1.0, -1.0);
+    else
+       glOrtho (0.0f, 250.0f*width/height, 0.0f, 250.0f, 1.0, -1.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 // OpenGL painting code goes here
@@ -35,7 +42,6 @@ void JogoDaMemoria::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear screen and depth buffer
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // Reset current modelview matrix
-
     for (int i = 0; i<8; i++) {
         if( i < 4 ){
             DesenhaCarta(i == cartaSelecionada, -0.7+ 0.35*(i%4), 0.7, i%4+1);
@@ -47,7 +53,6 @@ void JogoDaMemoria::paintGL() {
 }
 
 void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, int figura){
-
     glColor3f(0.7, 0.7, 0.7);//trocando cor para vermelho
     glBegin(GL_QUADS);
         glVertex2f(x_init, y_init);
@@ -154,6 +159,28 @@ void JogoDaMemoria::DesenhaLosangulo(float x_init, float y_init){
 // Key handler
 void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
+    case Qt::Key_Up:{
+        int soma = cartaSelecionada +4;
+        if(soma<8){
+            cartaSelecionada = soma;
+        }else{
+            cartaSelecionada = soma - 8;
+        }
+        break;
+    }case Qt::Key_Down:{
+        int soma = cartaSelecionada +4;
+        if(soma<8){
+            cartaSelecionada = soma;
+        }else{
+            cartaSelecionada = soma - 8;
+        }
+        break;
+    }case Qt::Key_Right:
+            cartaSelecionada = cartaSelecionada + 1;
+             break;
+    case Qt::Key_Left:
+            cartaSelecionada = cartaSelecionada - 1;
+             break;
     case Qt::Key_Escape:
         close(); // Quit on Escape
         break;
@@ -163,13 +190,17 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
     default:
         QGLWidget::keyPressEvent(event); // Let base class handle the other keys
     }
+    updateGL();
 }
 
 void JogoDaMemoria::mousePressEvent(QMouseEvent *event){
     if(event->button() == Qt::LeftButton){
         cartaSelecionada < 8 ? ++cartaSelecionada: cartaSelecionada=0;
         QPoint point = event->pos();
-        setWindowTitle("X="+QString::number(point.x())+" "+"Y="+ QString::number(point.y()));
+        GLfloat xf = (( (2 * win * point.x()) / view_w) - win);
+        GLfloat yf = (( ( (2 * win) * (point.y()-view_h) ) / -view_h) - win);
+        setWindowTitle("X="+QString::number(xf)+" "+"Y="+ QString::number(yf));
+        //setWindowTitle("X="+QString::number(point.x())+" "+"Y="+ QString::number(point.y()));
     }else if(event->button() == Qt::MidButton ){
         cartaSelecionada < 8 ? ++cartaSelecionada: cartaSelecionada=0;
     }else{

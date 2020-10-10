@@ -10,8 +10,10 @@ class JogoDaMemoria : public QGLWidget
 public:
     JogoDaMemoria();
     ~JogoDaMemoria();
-    float x_carta = 0.33;
-    float y_carta = -0.66;
+    GLfloat x_carta = 0.33;
+    GLfloat y_carta = -0.66;
+    GLfloat win=250;
+    GLint view_w, view_h;
 
 protected:
     void initializeGL();
