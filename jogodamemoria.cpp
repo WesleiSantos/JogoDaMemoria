@@ -17,48 +17,56 @@ JogoDaMemoria::~JogoDaMemoria() {}
 // Initialize OpenGL
 void JogoDaMemoria::initializeGL() {
     qglClearColor(Qt::white);
+    glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
+    glDepthFunc(GL_LEQUAL);
 }
 
 // This is called when the OpenGL window is resized
 void JogoDaMemoria::resizeGL(int width, int height) {
-    // Prevent divide by zero (in the gluPerspective call)
+    // Prevent divide by zero
     if (height == 0)
         height = 1;
-    view_w=width;
-    view_h=height;
-    glViewport(0, 0, width, height); // Reset current viewport
-    glLoadIdentity(); // Reset modelview matrix
-    if (width <= height)
-       glOrtho (0.0f, 250.0f, 0.0f, 250.0f*height/width, 1.0, -1.0);
-    else
-       glOrtho (0.0f, 250.0f*width/height, 0.0f, 250.0f, 1.0, -1.0);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    glViewport(0, 0, width, height); // Reset current viewport
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity(); // Reset projection matrix
+
+    gluPerspective(45.0f, static_cast<GLfloat>(width)/height, 5.f, 250.0f); // Calculate aspect ratio
+
+    // Especifica posição do observador e do alvo
+    gluLookAt(40.f,60.f,100.f, 0,0,0, 0,1,0);
 }
 
 // OpenGL painting code goes here
 void JogoDaMemoria::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear screen and depth buffer
-    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // Reset current modelview matrix
     for (int i = 0; i<8; i++) {
         if( i < 4 ){
             DesenhaCarta(i == cartaSelecionada, -0.7+ 0.35*(i%4), 0.7, i%4+1);
         }
         else {
+            //glRotatef(15, 1, 0, 0);
             DesenhaCarta(i == cartaSelecionada, -0.7 + 0.35*(i%4) , 0, i%4+1);
+            //glRotatef(-15, 1, 0, 0);
         }
     }
 }
 
 void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, int figura){
-    glColor3f(0.7, 0.7, 0.7);//trocando cor para vermelho
+    glColor3f(0.7, 0.7, 0.7);//trocando cor para cinza
+
     glBegin(GL_QUADS);
-        glVertex2f(x_init, y_init);
-        glVertex2f(x_carta + x_init, y_init);
-        glVertex2f(x_carta + x_init, y_carta + y_init);
-        glVertex2f(x_init, y_carta + y_init);
+        glVertex3f(x_init, y_init, 0.1);
+        glVertex3f(x_carta + x_init, y_init, 0.1);
+        glVertex3f(x_carta + x_init, y_carta + y_init, 0.1);
+        glVertex3f(x_init, y_carta + y_init, 0.1);
+
+        glVertex3f(x_init, y_init, 0);
+        glVertex3f(x_carta + x_init, y_init, 0);
+        glVertex3f(x_carta + x_init, y_carta + y_init, 0);
+        glVertex3f(x_init, y_carta + y_init, 0);
     glEnd();
 
     if (figura == 1){
@@ -83,10 +91,10 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, i
 
     glLineWidth(5.0f);
     glBegin(GL_LINE_LOOP);//desenhando a borda da carta
-        glVertex2f(x_init, y_init);
-        glVertex2f(x_carta + x_init, y_init);
-        glVertex2f(x_carta + x_init, y_carta + y_init);
-        glVertex2f(x_init, y_carta + y_init);
+        glVertex3f(x_init, y_init, 1);
+        glVertex3f(x_carta + x_init, y_init, 1);
+        glVertex3f(x_carta + x_init, y_carta + y_init, 1);
+        glVertex3f(x_init, y_carta + y_init, 1);
     glEnd();
 }
 
@@ -99,10 +107,10 @@ void JogoDaMemoria::DesenhaCubo(float x_init, float y_init){
 
     glColor3f(1, 0, 0);//trocando cor para vermelho
     glBegin(GL_QUADS);
-        glVertex2f(x_init, y_init);
-        glVertex2f(x_end, y_init);
-        glVertex2f(x_end, y_end);
-        glVertex2f(x_init, y_end);
+        glVertex3f(x_init, y_init, 0);
+        glVertex3f(x_end, y_init, 0);
+        glVertex3f(x_end, y_end, 0);
+        glVertex3f(x_init, y_end, 0);
     glEnd();
 }
 
@@ -115,9 +123,9 @@ void JogoDaMemoria::DesenhaTriangulo(float x_init, float y_init){
 
     glColor3f(0, 0, 1);//trocando cor para azul
     glBegin(GL_POLYGON);
-        glVertex2f(x_end/2+x_init/2, y_init);
-        glVertex2f(x_end, y_end);
-        glVertex2f(x_init, y_end);
+        glVertex3f(x_end/2+x_init/2, y_init, 0);
+        glVertex3f(x_end, y_end, 0);
+        glVertex3f(x_init, y_end, 0);
     glEnd();
 }
 void JogoDaMemoria::DesenhaIgual(float x_init, float y_init){
@@ -129,15 +137,15 @@ void JogoDaMemoria::DesenhaIgual(float x_init, float y_init){
 
     glColor3f(0, 1, 0.3);//trocando cor para azul
     glBegin(GL_QUADS);
-        glVertex2f(x_init, y_init);
-        glVertex2f(x_end, y_init);
-        glVertex2f(x_end, y_init + 1.5*y_carta/8);
-        glVertex2f(x_init, y_init + 1.5*y_carta/8);
+        glVertex3f(x_init, y_init, 0);
+        glVertex3f(x_end, y_init, 0);
+        glVertex3f(x_end, y_init + 1.5*y_carta/8, 0);
+        glVertex3f(x_init, y_init + 1.5*y_carta/8, 0);
 
-        glVertex2f(x_init, y_init + 2.5*y_carta/8);
-        glVertex2f(x_end, y_init + 2.5*y_carta/8);
-        glVertex2f(x_end, y_end);
-        glVertex2f(x_init, y_end);
+        glVertex3f(x_init, y_init + 2.5*y_carta/8, 0);
+        glVertex3f(x_end, y_init + 2.5*y_carta/8, 0);
+        glVertex3f(x_end, y_end, 0);
+        glVertex3f(x_init, y_end, 0);
     glEnd();
 }
 void JogoDaMemoria::DesenhaLosangulo(float x_init, float y_init){
@@ -149,10 +157,10 @@ void JogoDaMemoria::DesenhaLosangulo(float x_init, float y_init){
 
     glColor3f(0.6, 0, 0.8);//trocando cor para azul
     glBegin(GL_QUADS);
-    glVertex2f(x_init, (y_init + y_end)/2);
-    glVertex2f((x_init + x_end)/2, y_init);
-    glVertex2f(x_end, (y_init + y_end)/2);
-    glVertex2f((x_init + x_end)/2, y_end);
+    glVertex3f(x_init, (y_init + y_end)/2, 0);
+    glVertex3f((x_init + x_end)/2, y_init, 0);
+    glVertex3f(x_end, (y_init + y_end)/2, 0);
+    glVertex3f((x_init + x_end)/2, y_end, 0);
     glEnd();
 }
 
