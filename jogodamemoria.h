@@ -6,6 +6,11 @@
 
 class QTimer;
 
+struct {
+    bool escolhida = false;
+    int figura = 1;
+} typedef carta;
+
 class JogoDaMemoria : public QGLWidget
 {
     Q_OBJECT
@@ -25,7 +30,7 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void changeEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
-    void DesenhaCarta(bool selecionado, float x_init, float y_init, int figura, bool girar);
+    void DesenhaCarta(bool selecionado, float x_init, float y_init, carta carta);
     void DesenhaCubo(float x_init, float y_init);
     void DesenhaTriangulo(float x_init, float y_init);
     void DesenhaIgual(float x_init, float y_init);

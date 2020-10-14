@@ -4,7 +4,11 @@
 #include <GL/glu.h>
 #include <QTimer>
 
-GLint cartaSelecionada = 6;
+GLint cartaSelecionada = 6;// carta atualmente selecionada
+
+carta cartas[8];
+int cartaA= -1;// primeira carta selecionada
+int cartaB= -1;// segunda carta selecionada
 
 GLfloat aspecto, up=0;
 GLint largura, altura, ang=0;
@@ -55,16 +59,17 @@ void JogoDaMemoria::paintGL() {
 
     //glRotatef(90, 1, 0, 0);
     for (int i = 0; i<8; i++) {
+        cartas[i].figura = i%4;
         if( i < 4 ){
-            DesenhaCarta(i == cartaSelecionada, -0.7+ 0.38*(i%4), 0.8, i%4+1, girar);
+            DesenhaCarta(i == cartaSelecionada, -0.7+ 0.38*(i%4), 0.8, cartas[i]);
         }
         else {
-            DesenhaCarta(i == cartaSelecionada, -0.7 + 0.38*(i%4) , -0.14, i%4+1, girar);
+            DesenhaCarta(i == cartaSelecionada, -0.7 + 0.38*(i%4) , -0.14, cartas[i]);
         }
     }
 }
 
-void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, int figura, bool girar){
+void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, carta carta){
 
     if(girar && selecionado){
         ang+=1;
@@ -73,6 +78,11 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, i
         y_init += y_init > 0 ? -up : up;
         timer->start(15);
     }
+    else if (carta.escolhida){
+        glRotatef(-180, 1, 0, 0);
+        y_init += y_init > 0 ? -0.94 : 0.94;
+    }
+
     glColor3f(0.7, 0.7, 0.7);//trocando cor para cinza
     glBegin(GL_QUADS);
         glVertex3f(x_init, y_init, 0.01);
@@ -86,16 +96,16 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, i
         glVertex3f(x_init, y_carta + y_init, 0);
     glEnd();
 
-    if (figura == 1){
+    if (carta.figura == 0){
         DesenhaCubo(x_init, y_init);
     }
-    else if (figura == 2){
+    else if (carta.figura == 1){
         DesenhaTriangulo(x_init, y_init);
     }
-    else if (figura == 3){
+    else if (carta.figura == 2){
         DesenhaIgual(x_init, y_init);
     }
-    else if (figura == 4) {
+    else if (carta.figura == 3) {
         DesenhaLosangulo(x_init, y_init);
     }
 
@@ -127,6 +137,9 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, i
             timer->stop();
             girar = false;
         }
+    }
+    else if (carta.escolhida){
+        glRotatef(180, 1, 0, 0);
     }
 }
 
@@ -200,30 +213,56 @@ void JogoDaMemoria::DesenhaLosangulo(float x_init, float y_init){
 void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
     case Qt::Key_Up:{
-        int soma = cartaSelecionada +4;
-        if(soma<8){
-            cartaSelecionada = soma;
-        }else{
-            cartaSelecionada = soma - 8;
+        if( !girar){
+            int soma = cartaSelecionada +4;
+            if(soma<8){
+                cartaSelecionada = soma;
+            }else{
+                cartaSelecionada = soma - 8;
+            }
         }
         break;
     }case Qt::Key_Down:{
-        int soma = cartaSelecionada +4;
-        if(soma<8){
-            cartaSelecionada = soma;
-        }else{
-            cartaSelecionada = soma - 8;
+        if(!girar){
+            int soma = cartaSelecionada +4;
+            if(soma<8){
+                cartaSelecionada = soma;
+            }else{
+                cartaSelecionada = soma - 8;
+            }
         }
         break;
     }case Qt::Key_Right:
-            cartaSelecionada = cartaSelecionada + 1;
-             break;
+        if( !girar){
+            cartaSelecionada = (cartaSelecionada + 1)%8;
+        }
+        break;
     case Qt::Key_Left:
-            cartaSelecionada = cartaSelecionada - 1;
-             break;
+        if( !girar){
+            cartaSelecionada = (cartaSelecionada - 1)%8;
+        }
+        break;
     case Qt::Key_Enter:
+    case Qt::Key_Space:
+        if(!cartas[cartaSelecionada].escolhida){
             girar = true;
-            break;
+            cartas[cartaSelecionada].escolhida = true;
+            if ( cartaA == -1 ){
+                cartaA = cartaSelecionada;
+            }
+            else {
+                cartaB = cartaSelecionada;
+            }
+        }
+        if ( cartaA >=0 && cartaB >= 0){//se duas cartas foram escolhidas
+            if( cartas[cartaA].figura != cartas[cartaB].figura){
+               cartas[cartaA].escolhida = false;
+               cartas[cartaB].escolhida = false;
+            }
+            cartaA = -1;
+            cartaB = -1;
+        }
+        break;
     case Qt::Key_Escape:
         close(); // Quit on Escape
         break;
