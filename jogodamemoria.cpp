@@ -5,7 +5,7 @@
 #include <QTimer>
 
 GLint cartaSelecionada = 6;// carta atualmente selecionada
-
+void comparaCarta();
 carta cartas[8];
 int cartaA= -1;// primeira carta selecionada
 int cartaB= -1;// segunda carta selecionada
@@ -214,32 +214,28 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
     case Qt::Key_Up:{
         if( !girar){
+            comparaCarta();
             int soma = cartaSelecionada +4;
-            if(soma<8){
-                cartaSelecionada = soma;
-            }else{
-                cartaSelecionada = soma - 8;
-            }
+            cartaSelecionada = soma < 8 ? soma : soma-8;
         }
         break;
     }case Qt::Key_Down:{
         if(!girar){
+            comparaCarta();
             int soma = cartaSelecionada +4;
-            if(soma<8){
-                cartaSelecionada = soma;
-            }else{
-                cartaSelecionada = soma - 8;
-            }
+            cartaSelecionada = soma < 8 ? soma : soma - 8;
         }
         break;
     }case Qt::Key_Right:
         if( !girar){
-            cartaSelecionada = (cartaSelecionada + 1)%8;
+            comparaCarta();
+            cartaSelecionada = (cartaSelecionada + 1) % 8;
         }
         break;
     case Qt::Key_Left:
         if( !girar){
-            cartaSelecionada = (cartaSelecionada - 1)%8;
+            comparaCarta();
+            cartaSelecionada = cartaSelecionada > 0 ? (--cartaSelecionada)%8 : sizeof (cartas);
         }
         break;
     case Qt::Key_Enter:
@@ -254,14 +250,6 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
                 cartaB = cartaSelecionada;
             }
         }
-        if ( cartaA >=0 && cartaB >= 0){//se duas cartas foram escolhidas
-            if( cartas[cartaA].figura != cartas[cartaB].figura){
-               cartas[cartaA].escolhida = false;
-               cartas[cartaB].escolhida = false;
-            }
-            cartaA = -1;
-            cartaB = -1;
-        }
         break;
     case Qt::Key_Escape:
         close(); // Quit on Escape
@@ -273,6 +261,17 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
         QGLWidget::keyPressEvent(event); // Let base class handle the other keys
     }
     updateGL();
+}
+
+void comparaCarta(){
+    if ( cartaA >=0 && cartaB >= 0){//se duas cartas foram escolhidas
+        if( cartas[cartaA].figura != cartas[cartaB].figura){
+                cartas[cartaA].escolhida = false;
+                cartas[cartaB].escolhida = false;
+        }
+        cartaA = -1;
+        cartaB = -1;
+    }
 }
 
 void JogoDaMemoria::mousePressEvent(QMouseEvent *event){
