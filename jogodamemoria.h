@@ -22,6 +22,9 @@ public:
     GLfloat y_carta = -0.66;
     GLfloat win=1;
     GLint view_w, view_h;
+    //define quantas texturas seram usadas no programa
+    GLuint texture[3]; //vetor com os números das texturas
+    bool lightChanged, filterChanged;
 
 protected:
     void initializeGL();

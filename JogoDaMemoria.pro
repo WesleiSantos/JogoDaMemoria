@@ -8,6 +8,8 @@ SOURCES += \
         main.cpp \
         jogodamemoria.cpp
 
+RESOURCES += res.qrc
+
 HEADERS += \
         jogodamemoria.h
 
