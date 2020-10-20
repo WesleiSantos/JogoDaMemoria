@@ -9,9 +9,11 @@ void comparaCarta();
 carta cartas[8];
 int cartaA= -1;// primeira carta selecionada
 int cartaB= -1;// segunda carta selecionada
+int cartaE= -1;// valor da carta escolhida incorretamente
 
 
 GLfloat aspecto, up=0;
+float escala=1;
 GLint largura, altura, ang=0;
 bool girar= false;
 // Constructor
@@ -110,6 +112,7 @@ void JogoDaMemoria::paintGL() {
     //glRotatef(90, 1, 0, 0);
     for (int i = 0; i<8; i++) {
         cartas[i].figura = i%4;
+        cartas[i].id = i;
         if( i < 4 ){
             DesenhaCarta(i == cartaSelecionada, -0.7+ 0.38*(i%4), 0.8, cartas[i]);
         }
@@ -122,13 +125,17 @@ void JogoDaMemoria::paintGL() {
 void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, carta carta){
 
     if(girar && selecionado){
+        glPushMatrix();
         ang+=1;
         up+=0.94/180;
-        glRotatef(-ang, 1, 0, 0);
-        y_init += y_init > 0 ? -up : up;
+        escala+= ang <= 90 ? (float) 1/90 : (float) -1/90;// aumenta a escala até da meia volta e depois reduz até completa a volta
+        float y_up = y_init > 0 ? -up : up;
+        glRotatef(y_init > 0 ? ang : -ang, 1, 0, 0);
+        glTranslatef(0, y_up, 0);
+        glScalef(escala, escala, 1);
         timer->start(15);
     }
-    else if (carta.escolhida){
+    else if (carta.escolhida  || carta.id == cartaE){
         glRotatef(-180, 1, 0, 0);
         y_init += y_init > 0 ? -0.94 : 0.94;
     }
@@ -163,11 +170,18 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
         DesenhaLosangulo(x_init, y_init);
     }
 
-    if (selecionado){
+
+    if (carta.escolhida){
+        glColor3f(0, 1, 0);// trocando cor para verde nas cartas escolhidas
+    }
+    else if (carta.id == cartaE || ( cartaE > -1 && girar && selecionado)){
+        glColor3f(1, 0, 0);// trocando cor da borda para vermelho pela escolha errada
+    }
+    else if (selecionado){
         glColor3f(1.0f, 1.0f, 0);//trocando cor para amarelo
     }
     else {
-        glColor3f(0.0f, 0.0f, 0.0f);//trocando cor para branco
+        glColor3f(0.0f, 0.0f, 0.0f);//trocando cor para preto
     }
 
     glLineWidth(3.0f);
@@ -184,7 +198,7 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
         glVertex3f(x_init, y_carta + y_init, 0);
     glEnd();
     if(girar && selecionado){
-        glRotatef(ang, 1, 0, 0);
+        glPopMatrix();
         if(ang == 180){
             up=0;
             ang=0;
@@ -192,7 +206,7 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
             girar = false;
         }
     }
-    else if (carta.escolhida){
+    else if (carta.escolhida || carta.id == cartaE){
         glRotatef(180, 1, 0, 0);
     }
 }
@@ -268,6 +282,7 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
     case Qt::Key_Up:{
         if( !girar){
+            cartaE = -1;
             comparaCarta();
             int soma = cartaSelecionada +4;
             cartaSelecionada = soma < 8 ? soma : soma-8;
@@ -277,18 +292,19 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
         if(!girar){
             comparaCarta();
             int soma = cartaSelecionada +4;
+            cartaE = -1;
             cartaSelecionada = soma < 8 ? soma : soma - 8;
         }
         break;
     }case Qt::Key_Right:
         if( !girar){
-            comparaCarta();
-            cartaSelecionada = (cartaSelecionada + 1) % 8;
+            cartaSelecionada = (cartaSelecionada + 1)%8;
+            cartaE = -1;
         }
         break;
     case Qt::Key_Left:
         if( !girar){
-            comparaCarta();
+            cartaE = -1
             cartaSelecionada = cartaSelecionada > 0 ? (--cartaSelecionada)%8 : sizeof (cartas);
         }
         break;
@@ -304,6 +320,7 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
                 cartaB = cartaSelecionada;
             }
         }
+        comparaCarta();
         break;
     case Qt::Key_Escape:
         close(); // Quit on Escape
@@ -323,6 +340,7 @@ void comparaCarta(){
                 cartas[cartaA].escolhida = false;
                 cartas[cartaB].escolhida = false;
         }
+        cartaE = cartaA;
         cartaA = -1;
         cartaB = -1;
     }

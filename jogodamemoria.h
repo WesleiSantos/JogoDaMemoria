@@ -9,6 +9,7 @@ class QTimer;
 struct {
     bool escolhida = false;
     int figura = 1;
+    int id = 0;
 } typedef carta;
 
 class JogoDaMemoria : public QGLWidget
