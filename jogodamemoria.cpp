@@ -12,8 +12,7 @@ int cartaB= -1;// segunda carta selecionada
 int cartaE= -1;// valor da carta escolhida incorretamente
 
 
-GLfloat aspecto, up=0;
-float escala=1;
+GLfloat aspecto, up=0, escala=1;
 GLint largura, altura, ang=0;
 bool girar= false;
 // Constructor
@@ -283,14 +282,12 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
     case Qt::Key_Up:{
         if( !girar){
             cartaE = -1;
-            comparaCarta();
             int soma = cartaSelecionada +4;
             cartaSelecionada = soma < 8 ? soma : soma-8;
         }
         break;
     }case Qt::Key_Down:{
         if(!girar){
-            comparaCarta();
             int soma = cartaSelecionada +4;
             cartaE = -1;
             cartaSelecionada = soma < 8 ? soma : soma - 8;
@@ -304,7 +301,7 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
         break;
     case Qt::Key_Left:
         if( !girar){
-            cartaE = -1
+            cartaE = -1;
             cartaSelecionada = cartaSelecionada > 0 ? (--cartaSelecionada)%8 : sizeof (cartas);
         }
         break;
