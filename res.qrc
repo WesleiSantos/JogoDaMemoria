@@ -3,5 +3,11 @@
     <qresource prefix="/">
         <file>fundo.bmp</file>
         <file>frente.bmp</file>
+        <file>background1.jpg</file>
+        <file>background2.jpg</file>
+        <file>background3.png</file>
+        <file>fundo2.jpg</file>
+        <file>frente2.jpg</file>
+        <file>frente3.jpg</file>
     </qresource>
 </RCC>

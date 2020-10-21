@@ -11,7 +11,6 @@ int cartaA= -1;// primeira carta selecionada
 int cartaB= -1;// segunda carta selecionada
 int cartaE= -1;// valor da carta escolhida incorretamente
 
-
 GLfloat aspecto, up=0, escala=1;
 GLint largura, altura, ang=0;
 bool girar= false;
@@ -39,30 +38,42 @@ void JogoDaMemoria::initializeGL() {
     //Habilita o uso de texturas
      glEnable(GL_TEXTURE_2D);
      //carrega uma imagem BMP
-     QImage img = convertToGLFormat(QImage("fundo.bmp"));
-     QImage img2 = convertToGLFormat(QImage("frente.bmp"));
+     QImage imgFundo = convertToGLFormat(QImage("fundo2.jpg"));
+     QImage imgFrente = convertToGLFormat(QImage("frente2.jpg"));
+     QImage imgbackground = convertToGLFormat(QImage("background1.jpg"));
+
+
      //definir a forma de armazenamento dos pixeis na textura (1 = alinhamento por byte)
-     glGenTextures(2, texture);
-
+     glGenTextures(1, &_fundoTexture);
      //define a textura corrente
-     glBindTexture(GL_TEXTURE_2D, texture[0]);
+     glBindTexture(GL_TEXTURE_2D,_fundoTexture);
      //GL_TEXTURE_2D ==> define que será usanda uma textura 2D (bitmaps)
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-     glTexImage2D(GL_TEXTURE_2D, 0, 3, img.width(), img.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
+     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgFundo.width(), imgFundo.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imgFundo.bits());
 
+     //definir a forma de armazenamento dos pixeis na textura (1 = alinhamento por byte)
+     glGenTextures(1, &_frenteTexture);
      //define a textura corrente
-     glBindTexture(GL_TEXTURE_2D, texture[1]);
+     glBindTexture(GL_TEXTURE_2D, _frenteTexture);
      //GL_TEXTURE_2D ==> define que será usanda uma textura 2D (bitmaps)
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-     glTexImage2D(GL_TEXTURE_2D, 0, 3, img2.width(), img2.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img2.bits());
+     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgFrente.width(), imgFrente.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imgFrente.bits());
 
+     //definir a forma de armazenamento dos pixeis na textura (1 = alinhamento por byte)
+     glGenTextures(1, &_backgroundTexture);
+     //define a textura corrente
+     glBindTexture(GL_TEXTURE_2D, _backgroundTexture);
+     //GL_TEXTURE_2D ==> define que será usanda uma textura 2D (bitmaps)
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgbackground.width(), imgbackground.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imgbackground.bits());
 
      // Set up lighting
      GLfloat especularidade[4]={1.0,1.0,1.0,1.0};
-     GLint especMaterial = 60;
-     GLfloat ambLight[] = {0.8f, 0.8f, 0.8f, 1.0f};
+     GLint especMaterial = 100;
+     GLfloat ambLight[] = {1.f, 1.f, 1.f, 1.0f};
      GLfloat diffLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
      GLfloat especLight[]={1.0, 1.0, 1.0, 1.0};// "brilho"
      GLfloat lightPos[] = {0.0f, 0.0f, 2.0f, 1.0f};
@@ -96,9 +107,9 @@ void JogoDaMemoria::resizeGL(int width, int height) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity(); // Reset projection matrix
 
-    gluPerspective(8.0f, static_cast<GLfloat>(width)/height, 5.f, 250.0f); // Calculate aspect ratio
+    gluPerspective(7.5f, static_cast<GLfloat>(width)/height, 5.f, 250.0f); // Calculate aspect ratio
     // Especifica posição do observador e do alvo
-    gluLookAt(0.f, -0.5, 15.f, 0,0,0, 0,1,0);
+    gluLookAt(0.f, -10, 5.f, 0,0,0, 0,1,0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -107,7 +118,9 @@ void JogoDaMemoria::resizeGL(int width, int height) {
 void JogoDaMemoria::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear screen and depth buffer
     glMatrixMode(GL_MODELVIEW);
-
+    glLoadIdentity();
+    desenhaBackground();
+    //glTranslatef(0,0,5);
     //glRotatef(90, 1, 0, 0);
     for (int i = 0; i<8; i++) {
         cartas[i].figura = i%4;
@@ -140,7 +153,7 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
     }
 
     glColor3f(0.7, 0.7, 0.7);//trocando cor para cinza
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glBindTexture(GL_TEXTURE_2D, _fundoTexture);
     glBegin(GL_QUADS);
         glTexCoord2f(0.0f, 1.0f);glVertex3f(x_init, y_init, 0.01);
         glTexCoord2f(1.0f, 1.0f);glVertex3f(x_carta + x_init, y_init, 0.01);
@@ -148,7 +161,7 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
         glTexCoord2f(0.0f, 0.0f);glVertex3f(x_init, y_carta + y_init, 0.01);
     glEnd();
     glColor3f(0.7, 0.7, 0.7);//trocando cor para cinza
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glBindTexture(GL_TEXTURE_2D, _frenteTexture);
     glBegin(GL_QUADS);
         glTexCoord2f(0.0f, 1.0f);glVertex3f(x_init, y_init, 0);
         glTexCoord2f(1.0f, 1.0f);glVertex3f(x_carta + x_init, y_init, 0);
@@ -273,6 +286,16 @@ void JogoDaMemoria::DesenhaLosangulo(float x_init, float y_init){
     glVertex3f((x_init + x_end)/2, y_init, -0.01);
     glVertex3f(x_end, (y_init + y_end)/2, -0.01);
     glVertex3f((x_init + x_end)/2, y_end, -0.01);
+    glEnd();
+}
+void JogoDaMemoria::desenhaBackground(){
+    glColor3f(0.7, 0.7, 0.7);//trocando cor para cinza
+     glBindTexture(GL_TEXTURE_2D, _backgroundTexture);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(-2, -1.3, -0.5);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(-2,4, -0.5);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(2, 4, -0.5);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(2, -1.3, -0.5);
     glEnd();
 }
 

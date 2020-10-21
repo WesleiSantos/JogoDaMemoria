@@ -40,9 +40,12 @@ protected:
     void DesenhaIgual(float x_init, float y_init);
     void DesenhaLosangulo(float x_init, float y_init);
     void areaDesenho(int x_init,int  y_init);
+    void desenhaBackground();
 
 private:
     QTimer *timer;
+    //textures
+    GLuint _fundoTexture, _frenteTexture, _backgroundTexture;
 };
 #endif // JOGODAMEMORIA_H
 
