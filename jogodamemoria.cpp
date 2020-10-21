@@ -8,6 +8,7 @@
 
 GLint cartaSelecionada = 6;// carta atualmente selecionada
 void comparaCarta();
+void inicializarCartas();
 carta cartas[8];
 int cartaA= -1;// primeira carta selecionada
 int cartaB= -1;// segunda carta selecionada
@@ -25,6 +26,7 @@ JogoDaMemoria::JogoDaMemoria(){
     timer = new QTimer(this);
     timer->setSingleShot(true);
     connect(timer, SIGNAL(timeout()),this,SLOT(updateGL()));
+    inicializarCartas();
 }
 
 // Empty destructor
@@ -128,17 +130,8 @@ void JogoDaMemoria::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear screen and depth buffer
     glMatrixMode(GL_MODELVIEW);
     desenhaBackground();
-    //glTranslatef(0,0,5);
-    //glRotatef(90, 1, 0, 0);
     for (int i = 0; i<8; i++) {
-        cartas[i].figura = i%4;
-        cartas[i].id = i;
-        if( i < 4 ){
-            DesenhaCarta(i == cartaSelecionada, -0.7+ 0.38*(i%4), 0.8, cartas[i]);
-        }
-        else {
-            DesenhaCarta(i == cartaSelecionada, -0.7 + 0.38*(i%4) , -0.14, cartas[i]);
-        }
+        DesenhaCarta(i == cartaSelecionada, -0.7+ 0.38*(i%4), i< 4 ? 0.8 : -0.14, cartas[i]);
     }
 }
 void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, carta carta){
@@ -162,10 +155,10 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
     glColor3f(0.7, 0.7, 0.7);//trocando cor para cinza
     glBindTexture(GL_TEXTURE_2D, _fundoTexture);
     glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f);glVertex3f(x_init, y_init, 0.01);
-        glTexCoord2f(1.0f, 1.0f);glVertex3f(x_carta + x_init, y_init, 0.01);
-        glTexCoord2f(1.0f, 0.0f);glVertex3f(x_carta + x_init, y_carta + y_init, 0.01);
-        glTexCoord2f(0.0f, 0.0f);glVertex3f(x_init, y_carta + y_init, 0.01);
+        glTexCoord2f(0.0f, 1.0f);glVertex3f(x_init, y_init, 0.004);
+        glTexCoord2f(1.0f, 1.0f);glVertex3f(x_carta + x_init, y_init, 0.004);
+        glTexCoord2f(1.0f, 0.0f);glVertex3f(x_carta + x_init, y_carta + y_init, 0.004);
+        glTexCoord2f(0.0f, 0.0f);glVertex3f(x_init, y_carta + y_init, 0.004);
     glEnd();
     glColor3f(0.7, 0.7, 0.7);//trocando cor para cinza
     glBindTexture(GL_TEXTURE_2D, _frenteTexture);
@@ -189,26 +182,25 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
         DesenhaLosangulo(x_init, y_init);
     }
 
-
     if (carta.escolhida){
         glColor3f(0, 1, 0);// trocando cor para verde nas cartas escolhidas
     }
     else if (carta.id == cartaE || ( cartaE > -1 && girar && selecionado)){
         glColor3f(1, 0, 0);// trocando cor da borda para vermelho pela escolha errada
     }
-    else if (selecionado){
-        glColor3f(1.0f, 1.0f, 0);//trocando cor para amarelo
-    }
     else {
         glColor3f(0.0f, 0.0f, 0.0f);//trocando cor para preto
     }
-
+    if (selecionado){
+            glColor3f(1.0f, 1.0f, 0);//trocando cor para amarelo
+    }
+exibeTexto();
     glLineWidth(3.0f);
     glBegin(GL_LINE_LOOP);//desenhando a borda da carta
-        glVertex3f(x_init, y_init, 0.01);
-        glVertex3f(x_carta + x_init, y_init, 0.01);
-        glVertex3f(x_carta + x_init, y_carta + y_init, 0.01);
-        glVertex3f(x_init, y_carta + y_init, 0.01);
+        glVertex3f(x_init, y_init, 0.004);
+        glVertex3f(x_carta + x_init, y_init, 0.004);
+        glVertex3f(x_carta + x_init, y_carta + y_init, 0.004);
+        glVertex3f(x_init, y_carta + y_init, 0.004);
     glEnd();
     glBegin(GL_LINE_LOOP);
         glVertex3f(x_init, y_init, 0);
@@ -235,7 +227,7 @@ void JogoDaMemoria::exibeTexto(){
     label->setAutoFillBackground(true);
     label->setAlignment((Qt::AlignBottom  | Qt::AlignRight));
     label->move(view_w/4,view_h/2);
-    label->resize(500,100);
+    label->resize(600,400);
     label->setStyleSheet("QLabel { background-color : red; color : blue; }");
     label->setText("Parabéns, voçê ganhou!!");
     label->show();
@@ -348,17 +340,19 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
         break;
     case Qt::Key_Enter:
     case Qt::Key_Space:
-        if(!cartas[cartaSelecionada].escolhida){
-            girar = true;
-            cartas[cartaSelecionada].escolhida = true;
-            if ( cartaA == -1 ){
-                cartaA = cartaSelecionada;
+        if( !girar){
+            if(!cartas[cartaSelecionada].escolhida){
+                girar = true;
+                cartas[cartaSelecionada].escolhida = true;
+                if ( cartaA == -1 ){
+                    cartaA = cartaSelecionada;
+                }
+                else {
+                    cartaB = cartaSelecionada;
+                }
             }
-            else {
-                cartaB = cartaSelecionada;
-            }
+            comparaCarta();
         }
-        comparaCarta();
         break;
     case Qt::Key_Escape:
         close(); // Quit on Escape
@@ -381,6 +375,45 @@ void comparaCarta(){
         cartaE = cartaA;
         cartaA = -1;
         cartaB = -1;
+    }
+}
+
+void inicializarCartas(){
+    srand(time(NULL));//alimentando a semente da função rand com a hora atual
+    int QtdFig0 = 0;
+    int QtdFig1 = 0;
+    int QtdFig2 = 0;
+    int QtdFig3 = 0;
+    bool pares;
+    for (int i = 0; i<8; i++) {
+        pares = false;
+        int fig = rand()%4;
+        //o codigo abaixo serve para garantir que havera apenas um par de cartas de cada figura
+        while (!pares) {
+            pares = true;
+            if( QtdFig0 == 2 && fig == 0 ){
+                fig = 1;
+                pares = false;
+            }
+            if( QtdFig1 == 2 && fig == 1 ){
+                fig = 2;
+                pares = false;
+            }
+            if( QtdFig2 == 2 && fig == 2 ){
+                fig = 3;
+                pares = false;
+            }
+            if( QtdFig3 == 2 && fig == 3 ){
+                fig = 0;
+                pares = false;
+            }
+        }
+        QtdFig0 += fig == 0 ? 1 : 0;
+        QtdFig1 += fig == 1 ? 1 : 0;
+        QtdFig2 += fig == 2 ? 1 : 0;
+        QtdFig3 += fig == 3 ? 1 : 0;
+        cartas[i].figura = fig;
+        cartas[i].id = i;
     }
 }
 
