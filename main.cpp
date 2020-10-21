@@ -1,6 +1,7 @@
 #include "jogodamemoria.h"
 
 #include <QApplication>
+#include <QLabel>
 
 int main(int argc, char *argv[])
 {
@@ -10,6 +11,8 @@ int main(int argc, char *argv[])
         qDebug("Your system does not seem to support OpenGL. Cannot run this example.");
         return EXIT_FAILURE;
     }
+
+
     JogoDaMemoria w;
     w.resize(800,600);
     w.show();

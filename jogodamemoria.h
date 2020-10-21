@@ -3,8 +3,10 @@
 
 #include <QGLWidget>
 #include <QTime>
+#include <QLabel>
 
 class QTimer;
+class QLabel;
 
 struct {
     bool escolhida = false;
@@ -23,9 +25,6 @@ public:
     GLfloat y_carta = -0.66;
     GLfloat win=1;
     GLint view_w, view_h;
-    //define quantas texturas seram usadas no programa
-    GLuint texture[3]; //vetor com os números das texturas
-    bool lightChanged, filterChanged;
 
 protected:
     void initializeGL();
@@ -41,9 +40,11 @@ protected:
     void DesenhaLosangulo(float x_init, float y_init);
     void areaDesenho(int x_init,int  y_init);
     void desenhaBackground();
+    void exibeTexto();
 
 private:
     QTimer *timer;
+    QLabel *label;
     //textures
     GLuint _fundoTexture, _frenteTexture, _backgroundTexture;
 };

@@ -2,7 +2,9 @@
 #include <QKeyEvent>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <QLabel>
 #include <QTimer>
+#include <QGridLayout>
 
 GLint cartaSelecionada = 6;// carta atualmente selecionada
 void comparaCarta();
@@ -10,13 +12,16 @@ carta cartas[8];
 int cartaA= -1;// primeira carta selecionada
 int cartaB= -1;// segunda carta selecionada
 int cartaE= -1;// valor da carta escolhida incorretamente
-
 GLfloat aspecto, up=0, escala=1;
 GLint largura, altura, ang=0;
 bool girar= false;
+
+
+
 // Constructor
-JogoDaMemoria::JogoDaMemoria() {
+JogoDaMemoria::JogoDaMemoria(){
     setWindowTitle("jogo da memória");
+    label = new QLabel();
     timer = new QTimer(this);
     timer->setSingleShot(true);
     connect(timer, SIGNAL(timeout()),this,SLOT(updateGL()));
@@ -27,6 +32,7 @@ JogoDaMemoria::~JogoDaMemoria() {}
 
 // Initialize OpenGL
 void JogoDaMemoria::initializeGL() {
+
     glShadeModel(GL_SMOOTH); // Enable smooth shading
     qglClearColor(Qt::white);
     glClearDepth(1.0f);									// Depth Buffer Setup
@@ -95,6 +101,7 @@ void JogoDaMemoria::initializeGL() {
      glEnable(GL_LIGHT1);
      // Habilita o depth-buffering
      glEnable(GL_DEPTH_TEST);
+
 }
 
 // This is called when the OpenGL window is resized
@@ -102,7 +109,9 @@ void JogoDaMemoria::resizeGL(int width, int height) {
     // Prevent divide by zero
     if (height == 0)
         height = 1;
-    glViewport(0, 0, width, height); // Reset current viewport
+    view_w = width;
+    view_h = height;
+    glViewport(0, 0, view_w, view_h); // Reset current viewport
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity(); // Reset projection matrix
@@ -118,7 +127,6 @@ void JogoDaMemoria::resizeGL(int width, int height) {
 void JogoDaMemoria::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear screen and depth buffer
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
     desenhaBackground();
     //glTranslatef(0,0,5);
     //glRotatef(90, 1, 0, 0);
@@ -133,7 +141,6 @@ void JogoDaMemoria::paintGL() {
         }
     }
 }
-
 void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, carta carta){
 
     if(girar && selecionado){
@@ -221,6 +228,17 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
     else if (carta.escolhida || carta.id == cartaE){
         glRotatef(180, 1, 0, 0);
     }
+}
+
+void JogoDaMemoria::exibeTexto(){
+    label->setFrameStyle((QFrame::Panel  | QFrame::Sunken));
+    label->setAutoFillBackground(true);
+    label->setAlignment((Qt::AlignBottom  | Qt::AlignRight));
+    label->move(view_w/4,view_h/2);
+    label->resize(500,100);
+    label->setStyleSheet("QLabel { background-color : red; color : blue; }");
+    label->setText("Parabéns, voçê ganhou!!");
+    label->show();
 }
 
 void JogoDaMemoria::DesenhaCubo(float x_init, float y_init){
