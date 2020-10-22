@@ -4,7 +4,8 @@
 #include <GL/glu.h>
 #include <QLabel>
 #include <QTimer>
-#include <QGridLayout>
+#include <QPushButton>
+
 
 GLint cartaSelecionada = 6;// carta atualmente selecionada
 void comparaCarta();
@@ -42,7 +43,6 @@ void JogoDaMemoria::initializeGL() {
     glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
     glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
-
     //Habilita o uso de texturas
      glEnable(GL_TEXTURE_2D);
      //carrega uma imagem BMP
@@ -80,7 +80,7 @@ void JogoDaMemoria::initializeGL() {
 
      // Set up lighting
      GLfloat especularidade[4]={1.0,1.0,1.0,1.0};
-     GLint especMaterial = 100;
+     GLint especMaterial = 16;
      GLfloat ambLight[] = {1.f, 1.f, 1.f, 1.0f};
      GLfloat diffLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
      GLfloat especLight[]={1.0, 1.0, 1.0, 1.0};// "brilho"
@@ -118,9 +118,9 @@ void JogoDaMemoria::resizeGL(int width, int height) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity(); // Reset projection matrix
 
-    gluPerspective(7.5f, static_cast<GLfloat>(width)/height, 5.f, 250.0f); // Calculate aspect ratio
+    gluPerspective(8.f, static_cast<GLfloat>(width)/height, 5.f, 250.0f); // Calculate aspect ratio
     // Especifica posição do observador e do alvo
-    gluLookAt(0.f, -10, 5.f, 0,0,0, 0,1,0);
+    gluLookAt(0.f,-0.5f, 15.f, 0,0,0, 0,1,0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -194,7 +194,7 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
     if (selecionado){
             glColor3f(1.0f, 1.0f, 0);//trocando cor para amarelo
     }
-exibeTexto();
+
     glLineWidth(3.0f);
     glBegin(GL_LINE_LOOP);//desenhando a borda da carta
         glVertex3f(x_init, y_init, 0.004);
@@ -225,13 +225,26 @@ exibeTexto();
 void JogoDaMemoria::exibeTexto(){
     label->setFrameStyle((QFrame::Panel  | QFrame::Sunken));
     label->setAutoFillBackground(true);
-    label->setAlignment((Qt::AlignBottom  | Qt::AlignRight));
+    label->setAlignment((Qt::AlignCenter));
     label->move(view_w/4,view_h/2);
-    label->resize(600,400);
-    label->setStyleSheet("QLabel { background-color : red; color : blue; }");
+    label->resize(600,200);
+    label->setStyleSheet("QLabel { background-color :#37374e; color : blue; font:50px }");
     label->setText("Parabéns, voçê ganhou!!");
+    button1 = new QPushButton("& Jogar novamente", label);
+    button2 = new QPushButton("& Fechar", label);
+    button1->setStyleSheet("QPushButton {background-color:#8ccda1;font:bold;font-size:13px;}");
+    button2->setStyleSheet("QPushButton {background-color:#d91a27;font:bold;font-size:13px;}");
+    button1->move(200,150);
+    button1->resize(130,50);
+    button2->move(350,150);
+    button2->resize(80,50);
+    button1->setCheckable(true);
+
+    //button1->connect(this,SIGNAL(clicked()),this, SIGNAL(button1->setText("Outro")));
     label->show();
+
 }
+
 
 void JogoDaMemoria::DesenhaCubo(float x_init, float y_init){
     //pontos da area onde o desenho sera gerado
@@ -302,10 +315,10 @@ void JogoDaMemoria::desenhaBackground(){
     glColor3f(0.7, 0.7, 0.7);//trocando cor para cinza
      glBindTexture(GL_TEXTURE_2D, _backgroundTexture);
     glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(-2, -1.3, -0.5);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(-2,4, -0.5);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(2, 4, -0.5);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(2, -1.3, -0.5);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(-2, -2, -0.5);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(-2, 2, -0.5);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(2, 2, -0.5);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(2, -2, -0.5);
     glEnd();
 }
 

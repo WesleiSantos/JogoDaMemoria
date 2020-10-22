@@ -4,9 +4,11 @@
 #include <QGLWidget>
 #include <QTime>
 #include <QLabel>
+#include <QPushButton>
 
 class QTimer;
 class QLabel;
+class QPushButton;
 
 struct {
     bool escolhida = false;
@@ -19,8 +21,9 @@ class JogoDaMemoria : public QGLWidget
     Q_OBJECT
 
 public:
-    JogoDaMemoria();
-    ~JogoDaMemoria();
+   JogoDaMemoria(QWidget *parent):QGLWidget(parent){};
+   JogoDaMemoria();
+   ~JogoDaMemoria();
     GLfloat x_carta = 0.33;
     GLfloat y_carta = -0.66;
     GLfloat win=1;
@@ -45,6 +48,8 @@ protected:
 private:
     QTimer *timer;
     QLabel *label;
+    QPushButton *button1;
+    QPushButton *button2;
     //textures
     GLuint _fundoTexture, _frenteTexture, _backgroundTexture;
 };
