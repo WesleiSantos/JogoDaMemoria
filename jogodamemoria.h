@@ -48,8 +48,7 @@ protected:
 private:
     QTimer *timer;
     QLabel *label;
-    QPushButton *button1;
-    QPushButton *button2;
+    QPushButton *button;
     //textures
     GLuint _fundoTexture, _frenteTexture, _backgroundTexture;
 };

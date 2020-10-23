@@ -11,6 +11,7 @@ GLint cartaSelecionada = 6;// carta atualmente selecionada
 void comparaCarta();
 void inicializarCartas();
 carta cartas[8];
+int contAcertos=0;
 int cartaA= -1;// primeira carta selecionada
 int cartaB= -1;// segunda carta selecionada
 int cartaE= -1;// valor da carta escolhida incorretamente
@@ -24,10 +25,13 @@ bool girar= false;
 JogoDaMemoria::JogoDaMemoria(){
     setWindowTitle("jogo da memória");
     label = new QLabel();
+    button = new QPushButton("& Fechar", label);
+    connect(button, SIGNAL(clicked()),label,SLOT(close()));
     timer = new QTimer(this);
     timer->setSingleShot(true);
     connect(timer, SIGNAL(timeout()),this,SLOT(updateGL()));
     inicializarCartas();
+
 }
 
 // Empty destructor
@@ -133,6 +137,9 @@ void JogoDaMemoria::paintGL() {
     for (int i = 0; i<8; i++) {
         DesenhaCarta(i == cartaSelecionada, -0.7+ 0.38*(i%4), i< 4 ? 0.8 : -0.14, cartas[i]);
     }
+    if(contAcertos == (sizeof(cartas)/sizeof(cartas[0]))/2){
+        exibeTexto();
+    }
 }
 void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, carta carta){
 
@@ -223,6 +230,7 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
 }
 
 void JogoDaMemoria::exibeTexto(){
+    close();
     label->setFrameStyle((QFrame::Panel  | QFrame::Sunken));
     label->setAutoFillBackground(true);
     label->setAlignment((Qt::AlignCenter));
@@ -230,19 +238,10 @@ void JogoDaMemoria::exibeTexto(){
     label->resize(600,200);
     label->setStyleSheet("QLabel { background-color :#37374e; color : blue; font:50px }");
     label->setText("Parabéns, voçê ganhou!!");
-    button1 = new QPushButton("& Jogar novamente", label);
-    button2 = new QPushButton("& Fechar", label);
-    button1->setStyleSheet("QPushButton {background-color:#8ccda1;font:bold;font-size:13px;}");
-    button2->setStyleSheet("QPushButton {background-color:#d91a27;font:bold;font-size:13px;}");
-    button1->move(200,150);
-    button1->resize(130,50);
-    button2->move(350,150);
-    button2->resize(80,50);
-    button1->setCheckable(true);
-
-    //button1->connect(this,SIGNAL(clicked()),this, SIGNAL(button1->setText("Outro")));
+    button->setStyleSheet("QPushButton {background-color:#d91a27;font:bold;font-size:13px;}");
+    button->move(280,150);
+    button->resize(80,50);
     label->show();
-
 }
 
 
@@ -324,6 +323,7 @@ void JogoDaMemoria::desenhaBackground(){
 
 // Key handler
 void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
+
     switch (event->key()) {
     case Qt::Key_Up:{
         if( !girar){
@@ -352,6 +352,8 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
         }
         break;
     case Qt::Key_Enter:
+        exibeTexto();
+        break;
     case Qt::Key_Space:
         if( !girar){
             if(!cartas[cartaSelecionada].escolhida){
@@ -384,6 +386,8 @@ void comparaCarta(){
         if( cartas[cartaA].figura != cartas[cartaB].figura){
                 cartas[cartaA].escolhida = false;
                 cartas[cartaB].escolhida = false;
+        }else{
+            contAcertos++;
         }
         cartaE = cartaA;
         cartaA = -1;
