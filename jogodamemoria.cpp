@@ -137,9 +137,6 @@ void JogoDaMemoria::paintGL() {
     for (int i = 0; i<8; i++) {
         DesenhaCarta(i == cartaSelecionada, -0.7+ 0.38*(i%4), i< 4 ? 0.8 : -0.14, cartas[i]);
     }
-    if(contAcertos == (sizeof(cartas)/sizeof(cartas[0]))/2){
-        exibeTexto();
-    }
 }
 void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, carta carta){
 
@@ -230,7 +227,6 @@ void JogoDaMemoria::DesenhaCarta(bool selecionado, float x_init, float y_init, c
 }
 
 void JogoDaMemoria::exibeTexto(){
-    close();
     label->setFrameStyle((QFrame::Panel  | QFrame::Sunken));
     label->setAutoFillBackground(true);
     label->setAlignment((Qt::AlignCenter));
@@ -239,9 +235,10 @@ void JogoDaMemoria::exibeTexto(){
     label->setStyleSheet("QLabel { background-color :#37374e; color : blue; font:50px }");
     label->setText("Parabéns, voçê ganhou!!");
     button->setStyleSheet("QPushButton {background-color:#d91a27;font:bold;font-size:13px;}");
-    button->move(280,150);
+    button->move(260,150);
     button->resize(80,50);
     label->show();
+    close();
 }
 
 
@@ -323,7 +320,9 @@ void JogoDaMemoria::desenhaBackground(){
 
 // Key handler
 void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
-
+    if(contAcertos == (sizeof(cartas)/sizeof(cartas[0]))/2){
+        exibeTexto();
+    }
     switch (event->key()) {
     case Qt::Key_Up:{
         if( !girar){
@@ -352,8 +351,6 @@ void JogoDaMemoria::keyPressEvent(QKeyEvent *event) {
         }
         break;
     case Qt::Key_Enter:
-        exibeTexto();
-        break;
     case Qt::Key_Space:
         if( !girar){
             if(!cartas[cartaSelecionada].escolhida){
@@ -435,17 +432,8 @@ void inicializarCartas(){
 }
 
 void JogoDaMemoria::mousePressEvent(QMouseEvent *event){
-    if(event->button() == Qt::LeftButton){
+    if(event->button() == Qt::MidButton ){
         cartaSelecionada < 8 ? ++cartaSelecionada: cartaSelecionada=0;
-        QPoint point = event->pos();
-        GLfloat xf = (( (2 * win * point.x()) / view_w) - win);
-        GLfloat yf = (( ( (2 * win) * (point.y()-view_h) ) / -view_h) - win);
-        setWindowTitle("X="+QString::number(xf)+" "+"Y="+ QString::number(yf));
-        //setWindowTitle("X="+QString::number(point.x())+" "+"Y="+ QString::number(point.y()));
-    }else if(event->button() == Qt::MidButton ){
-        cartaSelecionada < 8 ? ++cartaSelecionada: cartaSelecionada=0;
-    }else{
-        setWindowTitle("Não");
     }
     updateGL();
 }
